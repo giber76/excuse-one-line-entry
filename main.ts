@@ -12,11 +12,19 @@ const LINE =
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "output";
 
-// The gate allows 1-160 characters. Fail loudly instead of writing an
-// invalid entry if the line ever grows past the limit.
+// The gate allows 1-160 characters of UTF-8 text, not only white space,
+// and the judge reads one line. Fail loudly instead of writing an
+// invalid entry if the line ever grows past the limit, wraps onto a
+// second line, or is blank once trimmed.
 const chars = [...LINE].length;
 if (chars > 160 || chars < 1) {
   throw new Error(`excuse line is ${chars} characters, must be 1-160`);
+}
+if (LINE.includes("\n") || LINE.includes("\r")) {
+  throw new Error("excuse line must be a single line");
+}
+if (LINE.trim().length === 0) {
+  throw new Error("excuse line must not be only white space");
 }
 
 // Create the output dir if missing. Never chmod the dir itself: on the
